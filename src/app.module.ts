@@ -16,10 +16,18 @@ import { JwtModule } from './jwt/jwt.module';
 import { MailModule } from './mail/mail.module';
 import { MediaModule } from './media/media.module';
 import { SmsModule } from './sms/sms.module';
-import { User } from './users/entities/user.entity';
-import { Verification } from './users/entities/verification.entity';
-import { UsersModule } from './users/users.module';
 import { EventEmitterModule } from '@nestjs/event-emitter';
+import { PaymentsModule } from './payment/payment.module';
+import { StripeModule } from './stripe/stripe.module';
+import { PaypalModule } from './paypal/paypal.module';
+import { ClientModule } from './client/client.module';
+import { UsersModule } from 'src/users/users.module';
+import { User } from 'src/users/entities/user.entity';
+import { Verification } from 'src/users/entities/verification.entity';
+import { Payment } from './payment/entities/payment.entity';
+import { Client } from './client/entities/client.entity';
+import { Discount } from './payment/entities/discount.entity';
+import { RazorpaysModule } from './razorpay/razorpay.module';
 
 @Module({
   // We add the module and call forRoot to pass configuration setting to root module of GQL
@@ -50,7 +58,7 @@ import { EventEmitterModule } from '@nestjs/event-emitter';
       synchronize: process.env.NODE_ENV !== 'prod',
       logging:
         process.env.NODE_ENV !== 'prod' && process.env.NODE_ENV !== 'test',
-      entities: [User, Verification],
+      entities: [User, Verification, Client, Payment, Discount],
     }),
     GraphQLModule.forRoot({
       installSubscriptionHandlers: true,
@@ -61,11 +69,17 @@ import { EventEmitterModule } from '@nestjs/event-emitter';
       },
       context: ({ req, connection }) => {
         const TOKEN_KEY = 'authorization';
+        const CLIENT_KEY = 'clientkey';
         const token = (
           req ? req.headers[TOKEN_KEY] : connection.context[TOKEN_KEY]
         )?.split(' ')?.[1];
+
+        const clientkey = req
+          ? req.headers[CLIENT_KEY]
+          : connection.context[CLIENT_KEY];
         return {
           token,
+          clientkey,
         };
       },
     }),
@@ -73,8 +87,8 @@ import { EventEmitterModule } from '@nestjs/event-emitter';
       privateKey: process.env.PRIVATE_KEY,
     }),
     MailModule,
-    AuthModule,
     UsersModule,
+    AuthModule,
     CommonModule.forRoot({
       accessKeyId: process.env.AWS_ACCESS_KEY,
       secretAccessKey: process.env.AWS_SECRET_KEY,
@@ -83,6 +97,11 @@ import { EventEmitterModule } from '@nestjs/event-emitter';
     ScheduleModule.forRoot(),
     EventEmitterModule.forRoot(),
     SmsModule,
+    PaymentsModule.forRoot(),
+    StripeModule,
+    PaypalModule,
+    ClientModule,
+    RazorpaysModule,
   ],
   controllers: [],
   providers: [],

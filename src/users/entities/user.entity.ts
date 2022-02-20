@@ -9,14 +9,25 @@ import {
 import * as bcrypt from 'bcrypt';
 import { IsEmail, IsEnum, IsString } from 'class-validator';
 import { GraphQLJSONObject } from 'graphql-type-json';
+import { Client } from 'src/client/entities/client.entity';
 import { CoreEntity } from 'src/common/entities/core.entity';
-import { BeforeInsert, BeforeUpdate, Column, Entity } from 'typeorm';
+import { Discount } from 'src/payment/entities/discount.entity';
+import { Payment } from 'src/payment/entities/payment.entity';
+
+import {
+  BeforeInsert,
+  BeforeUpdate,
+  Column,
+  Entity,
+  ManyToMany,
+  ManyToOne,
+  OneToMany,
+  RelationId,
+} from 'typeorm';
 
 export enum UserRole {
-  Client = 'Client',
-  Owner = 'Owner',
-  Delivery = 'Delivery',
-  Guest = 'Guest',
+  Staff = 'Staff',
+  Admin = 'Admin',
 }
 
 registerEnumType(UserRole, { name: 'UserRole' });
@@ -89,10 +100,26 @@ export class User extends CoreEntity {
   @IsEnum(UserRole)
   role: UserRole;
 
+  @Field(() => Client, { nullable: true })
+  @ManyToOne(() => Client, (client) => client.staff)
+  client: Client;
+
+  @Field(() => String, { nullable: true })
+  @RelationId((user: User) => user.client)
+  clientId: string;
+
   // @Column({ default: false })
   // @Field(() => Boolean)
   // @IsBoolean()
   // verified: boolean;
+
+  @Field(() => [Payment])
+  @OneToMany(() => Payment, (payment) => payment.customer)
+  payments: Payment[];
+
+  @Field(() => [Discount], { nullable: true })
+  @ManyToMany(() => Discount, (discount) => discount.customers)
+  discounts?: Discount[];
 
   @BeforeInsert()
   @BeforeUpdate()

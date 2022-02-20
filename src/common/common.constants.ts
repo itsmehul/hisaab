@@ -18,7 +18,8 @@ export const SMS_AUTH_KEY = 'SMS_AUTH_KEY';
 
 export const WEBHOOK_SECRET = 'WEBHOOK_SECRET';
 
-export enum EVENTS {
-  PICKUP_REQUESTED = 'order.pickupRequested',
-  ORDER_CREATED = 'order.orderCreated',
+export enum CREATE_ORDER_EVENTS {
+  PayPal = 'PayPal',
+  RazorPay = 'RazorPay',
+  Result = 'Result',
 }

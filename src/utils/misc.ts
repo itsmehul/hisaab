@@ -11,6 +11,7 @@ export function handleErrorResponse(
     console.error(error?.response?.data);
   } else if (error instanceof Error) {
     console.error(error.message);
+    errorMessage = message;
   } else if (typeof error === 'string') {
     errorMessage = error;
   } else {

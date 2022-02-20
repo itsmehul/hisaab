@@ -1,8 +1,8 @@
 {
-  "name": "kitchen",
+  "name": "payments-service",
   "version": "0.0.1",
   "description": "",
-  "author": "",
+  "author": "Mehul Gawde",
   "private": true,
   "license": "UNLICENSED",
   "scripts": {
